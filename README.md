@@ -1,5 +1,6 @@
 ## Skip List
 Moved from [My Java notes repo](https://github.com/YiYeHuang/JavaKeyStonesOneAtATime)
+
 Based on William Pugh's paper at 1990: Skip Lists: A Probabilistic Alternative to Balanced Trees
 Skip List is sorted and can implement to allow duplicate. Example application can be multiMap with a SkipList 
 KeyValue Store.
