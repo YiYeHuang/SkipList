@@ -1,4 +1,4 @@
-package example;
+package impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,28 +14,26 @@ import java.util.Random;
  *
  *
  */
-public class IntSkipList {
+public class SkipList<E extends Comparable<E>> {
 
 	private final int MAX_LEVEL =10;
 
 	// no tail, as tail will be always null
-	private SLNode head;
+	private SLNode<E> head;
 
 	private int size;
 
 	// control the current max height, avoid a sudden boost in level
-	public int currentMaxLevel;
-
+	private int currentMaxLevel;
 	private Random seed = new Random();
 
-
-	public IntSkipList() {
-		this.head = new SLNode(Integer.MIN_VALUE, MAX_LEVEL);
+	public SkipList() {
+		this.head = new SLNode<>(null, MAX_LEVEL);
 		this.currentMaxLevel = 1;
 		this.size = 0;
 	}
 
-	public void insert(int value) {
+	public void insert(E value) {
 
 		// With a probability of 1/2, make the node a part of the lowest-level list only. With 1/4 probability, the
 		// node will be a part of the lowest two lists. With 1/8 probability, the node will be a part of three lists.
@@ -43,7 +41,7 @@ public class IntSkipList {
 		// Max level is set to 10 now
 		int level = flipAndIncrementLevel();
 
-		SLNode newNode = new SLNode(value,level);
+		SLNode<E> newNode = new SLNode<>(value,level);
 
 		SLNode cur_walker = head;
 
@@ -51,7 +49,7 @@ public class IntSkipList {
 			// walk down the level until it find a range
 			while (null != cur_walker.next[i]) {
 				// when at bottom level, i is always 0, needs to find the right node to stop
-				if (cur_walker.next[i].getValue() > value) {
+				if (greaterThan((E) cur_walker.next[i].getValue(), value) ) {
 					break;
 				}
 				cur_walker = cur_walker.next[i];
@@ -66,16 +64,16 @@ public class IntSkipList {
 		size++;
 	}
 
-	public boolean contains(int value) {
+	public boolean contains(E value) {
 		SLNode cur_walker = head;
 		for (int i = currentMaxLevel - 1; i >= 0; i--) {
 			// walk down the level until it find a range
 			while (null != cur_walker.next[i]) {
 				// when at bottom level, i is always 0, needs to find the right node to stop
-				if (cur_walker.next[i].getValue() > value) {
+				if (greaterThan((E) cur_walker.next[i].getValue(), value)) {
 					break;
 				}
-				if (cur_walker.next[i].getValue() == value) {
+				if (equalTo((E) cur_walker.next[i].getValue(), value)) {
 					return true;
 				}
 				cur_walker = cur_walker.next[i];
@@ -85,17 +83,17 @@ public class IntSkipList {
 		return false;
 	}
 
-	public boolean delete(int value) {
+	public boolean delete(E value) {
 		SLNode cur_walker = head;
 		boolean result = false;
 		for (int i = currentMaxLevel - 1; i >= 0; i--) {
 			// walk down the level until it find a range
 			while (null != cur_walker.next[i]) {
 				// when at bottom level, i is always 0, needs to find the right node to stop
-				if (cur_walker.next[i].getValue() > value) {
+				if (greaterThan((E) cur_walker.next[i].getValue(), value)) {
 					break;
 				}
-				if (cur_walker.next[i].getValue() == value) {
+				if (equalTo((E) cur_walker.next[i].getValue(), value)) {
 					// ugly java ways of delete;
 					cur_walker.next[i] = cur_walker.next[i].next[i];
 					result = true;
@@ -111,8 +109,8 @@ public class IntSkipList {
 	}
 
 	public int getSize(){
-		return this.size;
-	}
+	    return this.size;
+    }
 
 	public void levelPrint() {
 		// find the start level
@@ -162,6 +160,18 @@ public class IntSkipList {
 	 * private ========================================================================================================
 	 */
 
+	private boolean lessThan(E a, E b) {
+		return a.compareTo(b) < 0;
+	}
+
+	private boolean equalTo(E a, E b) {
+		return a.compareTo(b) == 0;
+	}
+
+	private boolean greaterThan(E a, E b) {
+		return a.compareTo(b) > 0;
+	}
+
 	private int flipAndIncrementLevel() {
 		boolean head = true;
 		int level = 0;
@@ -181,21 +191,5 @@ public class IntSkipList {
 		}
 
 		return level;
-	}
-
-	public static void main(String[] args) {
-		for (int i = 5; i > 0; i--) {
-
-			for (int j = 5; j - i >= 0; j--) {
-				System.out.print(j);
-			}
-
-			for (int j = i; j > 0; j--) {
-				System.out.print( 6 - j);
-			}
-
-			System.out.println("");
-
-		}
 	}
 }
